@@ -20,22 +20,22 @@ class Settings():
                     "cub4": (self.screen_width / 2, 0 + self.metacubic_width)
                 },
                 2: {
-                    "cub3": (self.screen_width / 2 - self.metacubic_width, 0),
-                    "cub1": (self.screen_width / 2, 0),
-                    "cub4": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
-                    "cub2": (self.screen_width / 2, 0 + self.metacubic_width)
+                    "cub1": (self.screen_width / 2 - self.metacubic_width, 0),
+                    "cub2": (self.screen_width / 2, 0),
+                    "cub3": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
+                    "cub4": (self.screen_width / 2, 0 + self.metacubic_width)
                 },
                 3: {
-                    "cub4": (self.screen_width / 2 - self.metacubic_width, 0),
-                    "cub3": (self.screen_width / 2, 0),
-                    "cub2": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
-                    "cub1": (self.screen_width / 2, 0 + self.metacubic_width)
+                    "cub1": (self.screen_width / 2 - self.metacubic_width, 0),
+                    "cub2": (self.screen_width / 2, 0),
+                    "cub3": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
+                    "cub4": (self.screen_width / 2, 0 + self.metacubic_width)
                 },
                 4: {
-                    "cub2": (self.screen_width / 2 - self.metacubic_width, 0),
-                    "cub4": (self.screen_width / 2, 0),
-                    "cub1": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
-                    "cub3": (self.screen_width / 2, 0 + self.metacubic_width)
+                    "cub1": (self.screen_width / 2 - self.metacubic_width, 0),
+                    "cub2": (self.screen_width / 2, 0),
+                    "cub3": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
+                    "cub4": (self.screen_width / 2, 0 + self.metacubic_width)
                 }
             }),
             2 : ('images/cubic_yellow.bmp', {
@@ -73,9 +73,9 @@ class Settings():
                 },
                 2: {
                     "cub1": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
-                    "cub2": (self.screen_width / 2 - 2 * self.metacubic_width, 0),
-                    "cub3": (self.screen_width / 2, 0),
-                    "cub4": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width)
+                    "cub2": (self.screen_width / 2, self.metacubic_width),
+                    "cub3": (self.screen_width / 2 - 2 * self.metacubic_width, 0),
+                    "cub4": (self.screen_width / 2 - self.metacubic_width, 0)
                 },
                 3: {
                     "cub1": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
@@ -85,9 +85,9 @@ class Settings():
                 },
                 4: {
                     "cub1": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width),
-                    "cub2": (self.screen_width / 2 - 2 * self.metacubic_width, 0),
-                    "cub3": (self.screen_width / 2, 0),
-                    "cub4": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width)
+                    "cub2": (self.screen_width / 2, self.metacubic_width),
+                    "cub3": (self.screen_width / 2 - 2 * self.metacubic_width, 0),
+                    "cub4": (self.screen_width / 2 - self.metacubic_width, 0)
                 }
             }),
             4 : ('images/cubic_lblue.bmp', {
@@ -182,16 +182,16 @@ class Settings():
                     "cub4": (self.screen_width / 2, 2 * self.metacubic_width)
                 },
                 3: {
-                    "cub4": (self.screen_width / 2 - self.metacubic_width, 0),
-                    "cub3": (self.screen_width / 2, 0),
-                    "cub2": (self.screen_width / 2 + self.metacubic_width, 0),
-                    "cub1": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width)
+                    "cub1": (self.screen_width / 2 - self.metacubic_width, 0),
+                    "cub2": (self.screen_width / 2, 0),
+                    "cub3": (self.screen_width / 2 + self.metacubic_width, 0),
+                    "cub4": (self.screen_width / 2 - self.metacubic_width, self.metacubic_width)
                 },
                 4: {
-                    "cub2": (self.screen_width / 2 - self.metacubic_width, 0),
-                    "cub4": (self.screen_width / 2, 0),
-                    "cub1": (self.screen_width / 2, self.metacubic_width),
-                    "cub3": (self.screen_width / 2, 2 * self.metacubic_width)
+                    "cub1": (self.screen_width / 2 - self.metacubic_width, 0),
+                    "cub2": (self.screen_width / 2, 0),
+                    "cub3": (self.screen_width / 2, self.metacubic_width),
+                    "cub4": (self.screen_width / 2, 2 * self.metacubic_width)
                 }
             })
         }
@@ -200,7 +200,7 @@ class Settings():
     def init_dynamic_setting(self):
         """初始化动态参数"""
         # 方块下落的时间间隔
-        self.fall_interval = 0.4
+        self.fall_interval = 1.0
 
     def increase_speed(self):
         """下落加速"""

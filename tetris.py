@@ -1,8 +1,9 @@
 import pygame
+import threading
 
 from settings import Settings
 from all_cubic import AllCubic
-from my_threads import ThreadCheckEvents
+from my_threads import ThreadCubicFall
 import game_functions as gf
 
 
@@ -21,12 +22,13 @@ def run_game():
     newcubics = AllCubic(screen, game_settings)
 
     # 创建事件检测线程
-    thread_check_event = ThreadCheckEvents()
+    thread_lock = threading.Lock()
+    thread_cubic_fall = ThreadCubicFall(screen, game_settings, newcubics, thread_lock)
+    thread_cubic_fall.start()
 
     while True:
-        gf.check_events(game_settings, newcubics.cubics)
-        newcubics.cubics.update(game_settings, None, True, False)
-        gf.update_screen(screen, game_settings, newcubics)
+        gf.check_events(game_settings, newcubics, thread_cubic_fall)
+        gf.update_screen(screen, game_settings, newcubics, False)
 
 # 开始游戏主进程
 run_game()

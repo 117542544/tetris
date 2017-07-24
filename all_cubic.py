@@ -41,12 +41,16 @@ class AllCubic():
 
     def rotate(self):
         """顺时针旋转方块编组"""
+        # 设置转出屏幕后的回移次数
+        move_back_right_times = 0
+        move_back_left_times = 0
+        move_back_up_times = 0
         # 获取下一个方向的位置字典
         next_dir_num = self.recent_dir_num + 1
         if next_dir_num > 4:
             next_dir_num -= 4
         next_dir_dict = self.dir_dict[next_dir_num]
-        # 遍历方块位置名
+        # 遍历方块位置名,修改所有元方块位置
         for position_flag in  next_dir_dict.keys():
             # 计算位置变动值
             x_diff = next_dir_dict[position_flag][0] - self.recent_chosen_dir_dict[position_flag][0]
@@ -56,10 +60,38 @@ class AllCubic():
                 if cubic.position_flag == position_flag:
                     cubic.rect.x += x_diff
                     cubic.rect.y += y_diff
+                    # 计算需要回移的次数
+                    if cubic.rect.x >= self.game_settings.screen_width:
+                        if (int((cubic.rect.x + self.game_settings.metacubic_width - self.game_settings.screen_width) \
+                    /self.game_settings.metacubic_width) >  move_back_left_times):
+                            move_back_left_times = int((cubic.rect.x + self.game_settings.metacubic_width \
+                    - self.game_settings.screen_width)/self.game_settings.metacubic_width)
+
+                    elif cubic.rect.x < 0:
+                        if (int((0 - cubic.rect.x) / self.game_settings.metacubic_width) > move_back_right_times):
+                            move_back_right_times = int((0 - cubic.rect.x) / self.game_settings.metacubic_width)
+
+                    if cubic.rect.y >= self.game_settings.screen_height:
+                        if (int((cubic.rect.y + self.game_settings.metacubic_width - self.game_settings.screen_height) \
+                    / self.game_settings.metacubic_width) > move_back_up_times):
+                            move_back_up_times = int((cubic.rect.y + self.game_settings.metacubic_width \
+                    - self.game_settings.screen_height) / self.game_settings.metacubic_width)
+
                     break
         # 记录最近一次的方向值和方向字典
         self.recent_dir_num = next_dir_num
         self.recent_chosen_dir_dict = next_dir_dict
+
+        # 将旋转后超出显示范围的方块组移回屏幕内
+        while move_back_right_times > 0:
+            self.cubics.update(self.game_settings, pygame.K_RIGHT)
+            move_back_right_times -= 1
+        while move_back_left_times > 0:
+            self.cubics.update(self.game_settings, pygame.K_LEFT)
+            move_back_left_times -= 1
+        while move_back_up_times > 0:
+            self.cubics.update(self.game_settings, 'up')
+            move_back_up_times -= 1
 
     def in_position(self):
         """落到底部处理"""
@@ -74,18 +106,18 @@ class MetaCubic(Sprite):
         self.image = pygame.image.load(path)
         self.rect = self.image.get_rect()
 
-    def update(self, game_settings, event_key, fall=False, move=False):
+    def update(self, game_settings, event_key):
         """处理方块自然下降与按键移动"""
-        # 处理自然下降
-        if fall:
+        if event_key == pygame.K_DOWN:
+            game_settings.key_down = True
             self.rect.y += game_settings.cubic_move_dist
-
-        # 处理按键移动
-        if move:
-            if event_key == pygame.K_DOWN:
-
-                self.rect.y += game_settings.cubic_move_dist
-            if event_key == pygame.K_LEFT:
-                self.rect.x -= game_settings.cubic_move_dist
-            if event_key == pygame.K_RIGHT:
-                self.rect.x += game_settings.cubic_move_dist
+        if event_key == pygame.K_LEFT:
+            game_settings.key_left = True
+            self.rect.x -= game_settings.cubic_move_dist
+        if event_key == pygame.K_RIGHT:
+            game_settings.key_right = True
+            self.rect.x += game_settings.cubic_move_dist
+        if event_key == 'up':
+            self.rect.y -= game_settings.cubic_move_dist
+        if event_key == 'down':
+            self.rect.y += game_settings.cubic_move_dist

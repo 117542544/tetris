@@ -7,9 +7,6 @@ class Settings():
         self.screen_bgcolor = (0, 0, 0)
         self.FPS = 30
 
-        # 按键标志
-
-
         # 元方块宽度设置
         self.metacubic_width = 25
         # 方块单次下落距离
@@ -203,8 +200,19 @@ class Settings():
 
     def init_dynamic_setting(self):
         """初始化动态参数"""
+        # 退出所有子线程标志
+        self.exit_threads_flag = False
+
         # 方块下落的时间间隔
         self.fall_interval = 1.0
+
+        # 按键标志
+        self.key_down = False
+        self.key_left = False
+        self.key_right = False
+        self.key_down_timestamp = 0
+        self.key_left_timestamp = 0
+        self.key_right_timestamp = 0
 
     def increase_speed(self):
         """下落加速"""

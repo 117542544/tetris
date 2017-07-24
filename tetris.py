@@ -3,7 +3,7 @@ import threading
 
 from settings import Settings
 from all_cubic import AllCubic
-from my_threads import ThreadCubicFall
+from my_threads import ThreadCubicFall, ThreadCheckKeyDown
 import game_functions as gf
 
 
@@ -24,15 +24,19 @@ def run_game():
     # 创建方块
     newcubics = AllCubic(screen, game_settings)
 
-    # 创建事件检测线程
+    # 创建多线程
     thread_lock = threading.Lock()
-    thread_cubic_fall = ThreadCubicFall(screen, game_settings, newcubics, thread_lock)
+    # 创建方块自由下落线程
+    thread_cubic_fall = ThreadCubicFall(game_settings, newcubics, thread_lock)
     thread_cubic_fall.start()
+    # 创建连续按键检测线程
+    thread_key_down = ThreadCheckKeyDown(game_settings, newcubics, thread_lock)
+    thread_key_down.start()
 
     while True:
         # 限制运行速度
         fps_clock.tick(game_settings.FPS)
-        gf.check_events(game_settings, newcubics, thread_cubic_fall)
+        gf.check_events(game_settings, newcubics)
         gf.update_screen(screen, game_settings, newcubics)
 
 # 开始游戏主进程

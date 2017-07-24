@@ -18,6 +18,9 @@ def run_game():
     screen = pygame.display.set_mode((game_settings.screen_width, game_settings.screen_height))
     pygame.display.set_caption("Tetris (Roy)")
 
+    # 创建pygame时钟控制
+    fps_clock = pygame.time.Clock()
+
     # 创建方块
     newcubics = AllCubic(screen, game_settings)
 
@@ -27,8 +30,10 @@ def run_game():
     thread_cubic_fall.start()
 
     while True:
+        # 限制运行速度
+        fps_clock.tick(game_settings.FPS)
         gf.check_events(game_settings, newcubics, thread_cubic_fall)
-        gf.update_screen(screen, game_settings, newcubics, False)
+        gf.update_screen(screen, game_settings, newcubics)
 
 # 开始游戏主进程
 run_game()

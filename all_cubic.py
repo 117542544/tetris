@@ -78,13 +78,14 @@ class MetaCubic(Sprite):
         """处理方块自然下降与按键移动"""
         # 处理自然下降
         if fall:
-            self.rect.y += game_settings.cubic_fall_dist
+            self.rect.y += game_settings.cubic_move_dist
 
         # 处理按键移动
         if move:
             if event_key == pygame.K_DOWN:
-                self.rect.y += game_settings.cubic_fall_dist
+
+                self.rect.y += game_settings.cubic_move_dist
             if event_key == pygame.K_LEFT:
-                self.rect.x -= game_settings.cubic_fall_dist
+                self.rect.x -= game_settings.cubic_move_dist
             if event_key == pygame.K_RIGHT:
-                self.rect.x += game_settings.cubic_fall_dist
+                self.rect.x += game_settings.cubic_move_dist

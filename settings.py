@@ -5,11 +5,15 @@ class Settings():
         self.screen_width = 400
         self.screen_height = 600
         self.screen_bgcolor = (0, 0, 0)
+        self.FPS = 30
+
+        # 按键标志
+
 
         # 元方块宽度设置
         self.metacubic_width = 25
         # 方块单次下落距离
-        self.cubic_fall_dist = 25
+        self.cubic_move_dist = 25
         # 方块形状对应的图片路径,排列的位置与顺时针四种方向设置
         self.cubic_shape = {
             1 : ('images/cubic_red.bmp', {

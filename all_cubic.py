@@ -14,6 +14,8 @@ class AllCubic():
         # 创建编组
         self.cubics = Group()
 
+    def add_cubics(self):
+        """为空组随机加入处于任意方位的方块形状"""
         # 随机选择一种形状并创建方块组实例
         randnum_shape = randint(1, 7)
         chosen_shape = self.game_settings.cubic_shape[randnum_shape]
@@ -63,9 +65,10 @@ class AllCubic():
                     # 计算需要回移的次数
                     if cubic.rect.x >= self.game_settings.screen_width:
                         if (int((cubic.rect.x + self.game_settings.metacubic_width - self.game_settings.screen_width) \
-                    /self.game_settings.metacubic_width) >  move_back_left_times):
+                            /self.game_settings.metacubic_width) >  move_back_left_times):
                             move_back_left_times = int((cubic.rect.x + self.game_settings.metacubic_width \
-                    - self.game_settings.screen_width)/self.game_settings.metacubic_width)
+                                                        - self.game_settings.screen_width)\
+                                                       /self.game_settings.metacubic_width)
 
                     elif cubic.rect.x < 0:
                         if (int((0 - cubic.rect.x) / self.game_settings.metacubic_width) > move_back_right_times):
@@ -73,9 +76,10 @@ class AllCubic():
 
                     if cubic.rect.y >= self.game_settings.screen_height:
                         if (int((cubic.rect.y + self.game_settings.metacubic_width - self.game_settings.screen_height) \
-                    / self.game_settings.metacubic_width) > move_back_up_times):
+                            / self.game_settings.metacubic_width) > move_back_up_times):
                             move_back_up_times = int((cubic.rect.y + self.game_settings.metacubic_width \
-                    - self.game_settings.screen_height) / self.game_settings.metacubic_width)
+                                                    - self.game_settings.screen_height) \
+                                                     / self.game_settings.metacubic_width)
 
                     break
         # 记录最近一次的方向值和方向字典
@@ -92,10 +96,10 @@ class AllCubic():
         while move_back_up_times > 0:
             self.cubics.update(self.game_settings, 'up')
             move_back_up_times -= 1
-
-    def in_position(self):
-        """落到底部处理"""
-        pass
+        # 重置按键的保持按下状态
+        self.game_settings.key_down = False
+        self.game_settings.key_left = False
+        self.game_settings.key_right = False
 
 
 class MetaCubic(Sprite):
@@ -121,3 +125,25 @@ class MetaCubic(Sprite):
             self.rect.y -= game_settings.cubic_move_dist
         if event_key == 'down':
             self.rect.y += game_settings.cubic_move_dist
+
+
+class DeadCubic():
+    """已固定的方块组的类"""
+    def __init__(self, screen, game_settings):
+        """创建方块组"""
+        self.game_settings = game_settings
+        # 获取屏幕
+        self.screen = screen
+        # 创建编组
+        self.cubics = Group()
+
+        for x in range(0, self.game_settings.screen_width, self.game_settings.metacubic_width):
+            new_dead_cubic = MetaCubic('images/cubic_lblue.bmp')
+            new_dead_cubic.rect.x = x
+            new_dead_cubic.rect.y = self.game_settings.screen_height
+            self.cubics.add(new_dead_cubic)
+
+    def drawme(self):
+        """绘制方块编组"""
+        for cubic in self.cubics.sprites():
+            self.screen.blit(cubic.image, cubic.rect)

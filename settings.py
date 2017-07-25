@@ -196,6 +196,21 @@ class Settings():
                 }
             })
         }
+
+        # 黑行设置
+        self.black_line_width = self.screen_width
+        self.black_line_height = self.metacubic_width
+        self.black_line_color = self.screen_bgcolor
+
+        # 消行记分设置
+        self.earn_score = {
+            1 : 100,
+            2 : 300,
+            3 : 500,
+            4 : 800
+        }
+
+        # 初始化动态参数
         self.init_dynamic_setting()
 
     def init_dynamic_setting(self):
@@ -213,6 +228,15 @@ class Settings():
         self.key_down_timestamp = 0
         self.key_left_timestamp = 0
         self.key_right_timestamp = 0
+
+        # 黑行更新标志位
+        self.black_line_refresh_flag = False
+
+        # 游戏得分,最高分，关卡级别
+        self.score = 0
+        self.hiscore = 0
+        self.level = 1
+
 
     def increase_speed(self):
         """下落加速"""

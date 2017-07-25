@@ -137,13 +137,33 @@ class DeadCubic():
         # 创建编组
         self.cubics = Group()
 
-        for x in range(0, self.game_settings.screen_width, self.game_settings.metacubic_width):
-            new_dead_cubic = MetaCubic('images/cubic_lblue.bmp')
-            new_dead_cubic.rect.x = x
-            new_dead_cubic.rect.y = self.game_settings.screen_height
-            self.cubics.add(new_dead_cubic)
-
     def drawme(self):
         """绘制方块编组"""
         for cubic in self.cubics.sprites():
             self.screen.blit(cubic.image, cubic.rect)
+
+
+class BlackLines():
+    """黑行组"""
+    def __init__(self):
+        self.line = Group()
+    def drawme(self):
+        """在屏幕上绘制黑行组"""
+        for black_line in self.line.sprites():
+            black_line.drawme()
+
+
+class BlackLine(Sprite):
+    """消除整行时的黑色行"""
+    def __init__(self, screen, game_settings):
+        super(BlackLine, self).__init__()
+        self.game_settings = game_settings
+        self.screen = screen
+
+        # 在(0,0)处创建矩形， 后面再放到正确的位置
+        self.rect = pygame.Rect(0, 0, self.game_settings.black_line_width, self.game_settings.black_line_height)
+        self.color = self.game_settings.black_line_color
+
+    def drawme(self):
+        """在屏幕上绘制黑行"""
+        pygame.draw.rect(self.screen, self.color, self.rect)

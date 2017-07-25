@@ -3,7 +3,7 @@ import threading
 from pygame.sprite import Group
 
 from settings import Settings
-from all_cubic import AllCubic, DeadCubic
+from my_class import AllCubic, DeadCubic, BlackLines
 from my_threads import ThreadCubicFall, ThreadCheckKeyDown
 import game_functions as gf
 
@@ -32,20 +32,27 @@ def run_game():
     # 创建被固定的dead方块
     deadcubics = DeadCubic(screen, game_settings)
 
+    # 创建消除时显示的黑行组
+    blacklines = BlackLines()
+
     # 创建多线程
     thread_lock = threading.Lock()
     # 创建方块自由下落线程
-    thread_cubic_fall = ThreadCubicFall(game_settings, newcubics, deadcubics, tempcubics, thread_lock)
+    thread_cubic_fall = ThreadCubicFall(screen,game_settings, newcubics, deadcubics, tempcubics, thread_lock, \
+                                        blacklines)
     thread_cubic_fall.start()
     # 创建连续按键检测线程
-    thread_key_down = ThreadCheckKeyDown(game_settings, newcubics, deadcubics, tempcubics, thread_lock)
+    thread_key_down = ThreadCheckKeyDown(screen,game_settings, newcubics, deadcubics, tempcubics, thread_lock, \
+                                         blacklines)
     thread_key_down.start()
 
     while True:
         # 限制运行速度
         fps_clock.tick(game_settings.FPS)
-        gf.check_events(game_settings, newcubics, deadcubics, tempcubics)
-        gf.update_screen(screen, game_settings, newcubics, deadcubics)
+        # 事件检测
+        gf.check_events(screen, game_settings, newcubics, deadcubics, tempcubics, blacklines)
+        # 更新所有屏幕元素
+        gf.update_screen(screen, game_settings, newcubics, deadcubics, blacklines)
 
 # 开始游戏主进程
 run_game()

@@ -33,6 +33,8 @@ def game_start(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, thr
 
     # 重置动态置与各种标志位
     game_settings.init_dynamic_setting()
+    # 重新把记分板的数值转换为图像
+    score_board.prep_text()
     # 为方块组添加新落下的方块
     fall_cubics.cubics.empty()
     fall_cubics.add_cubics()

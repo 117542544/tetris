@@ -1,3 +1,4 @@
+"""TETRIS by Royson"""
 import pygame
 import threading
 from pygame.sprite import Group

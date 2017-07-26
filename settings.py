@@ -214,7 +214,7 @@ class Settings():
         # 最高分
         self.hiscore = 0
         # 每升一级需要消除的行数
-        self.levelup_lines = 3
+        self.levelup_lines = 30
 
         # 初始化动态参数
         self.init_dynamic_setting()

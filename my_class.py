@@ -29,9 +29,9 @@ class AllCubic():
         self.recent_chosen_dir_dict = chosen_dir
         for key, value in chosen_dir.items():
             new_cubic = MetaCubic(shape_image_path)
-            # 把方块的初始位置放到预设位置
+            # 把方块的初始位置放到预设位置,高度要加上预设的起始投放高度
             new_cubic.rect.x = value[0]
-            new_cubic.rect.y = value[1]
+            new_cubic.rect.y = value[1] + self.game_settings.cubic_start_height
             new_cubic.position_flag = key
             # 加入组
             self.cubics.add(new_cubic)

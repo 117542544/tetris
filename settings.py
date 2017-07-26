@@ -11,6 +11,8 @@ class Settings():
         self.metacubic_width = 25
         # 方块单次下落距离
         self.cubic_move_dist = 25
+        # 放置方块的起始高度
+        self.cubic_start_height = 75
         # 方块形状对应的图片路径,排列的位置与顺时针四种方向设置
         self.cubic_shape = {
             1 : ('images/cubic_red.bmp', {
@@ -209,6 +211,10 @@ class Settings():
             3 : 500,
             4 : 800
         }
+        # 最高分
+        self.hiscore = 0
+        # 每升一级需要消除的行数
+        self.levelup_lines = 30
 
         # 初始化动态参数
         self.init_dynamic_setting()
@@ -232,10 +238,10 @@ class Settings():
         # 黑行更新标志位
         self.black_line_refresh_flag = False
 
-        # 游戏得分,最高分，关卡级别
+        # 记录游戏得分,最高分，关卡级别,消行总数
         self.score = 0
-        self.hiscore = 0
-        self.level = 1
+        self.level = 0
+        self.lines = 0
 
 
     def increase_speed(self):

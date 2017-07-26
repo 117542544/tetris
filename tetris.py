@@ -5,6 +5,7 @@ from pygame.sprite import Group
 from settings import Settings
 from my_class import AllCubic, DeadCubic, BlackLines
 from my_threads import ThreadCubicFall, ThreadCheckKeyDown
+from score_board import ScoreBoard
 import game_functions as gf
 
 
@@ -35,24 +36,27 @@ def run_game():
     # 创建消除时显示的黑行组
     blacklines = BlackLines()
 
+    # 创建得分板
+    scoreboard = ScoreBoard(screen, game_settings)
+
     # 创建多线程
     thread_lock = threading.Lock()
     # 创建方块自由下落线程
     thread_cubic_fall = ThreadCubicFall(screen,game_settings, newcubics, deadcubics, tempcubics, thread_lock, \
-                                        blacklines)
+                                        blacklines, scoreboard)
     thread_cubic_fall.start()
     # 创建连续按键检测线程
     thread_key_down = ThreadCheckKeyDown(screen,game_settings, newcubics, deadcubics, tempcubics, thread_lock, \
-                                         blacklines)
+                                         blacklines, scoreboard)
     thread_key_down.start()
 
     while True:
         # 限制运行速度
         fps_clock.tick(game_settings.FPS)
         # 事件检测
-        gf.check_events(screen, game_settings, newcubics, deadcubics, tempcubics, blacklines)
+        gf.check_events(screen, game_settings, newcubics, deadcubics, tempcubics, blacklines, scoreboard)
         # 更新所有屏幕元素
-        gf.update_screen(screen, game_settings, newcubics, deadcubics, blacklines)
+        gf.update_screen(screen, game_settings, newcubics, deadcubics, blacklines, scoreboard)
 
 # 开始游戏主进程
 run_game()

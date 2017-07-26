@@ -2,17 +2,17 @@ import pygame
 import sys
 import time
 
-from my_class import MetaCubic, BlackLine, BlackLines
-from score_board import ScoreBoard
+from my_class import MetaCubic, BlackLine
+import start_stop_func as ss
 
 
-def update_screen(screen, game_settings, all_cubics, dead_cubics, black_lines, score_board):
+def update_screen(screen, game_settings, fall_cubics, dead_cubics, black_lines, score_board):
     """更新屏幕"""
     # 重绘屏幕
     screen.fill(game_settings.screen_bgcolor)
 
     # 重绘方块
-    all_cubics.drawme()
+    fall_cubics.drawme()
     dead_cubics.drawme()
     if game_settings.black_line_refresh_flag:
         black_lines.drawme()
@@ -24,11 +24,15 @@ def update_screen(screen, game_settings, all_cubics, dead_cubics, black_lines, s
     pygame.display.flip()
 
 
-def check_keydown_events(screen, event, game_settings, all_cubics, dead_cubics, temp_cubics, black_lines, score_board):
+def check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, score_board):
     """处理按键事件"""
     if event.key == pygame.K_q:
         game_settings.exit_threads_flag = True
         sys.exit()
+
+    # 如果是game_over状态就不用检测其他按键了
+    if game_settings.game_over:
+        return
 
     if (event.key == pygame.K_DOWN) or (event.key == pygame.K_LEFT) or (event.key == pygame.K_RIGHT):
         # 记录按下键的标志位,并打上按键事件戳
@@ -43,17 +47,17 @@ def check_keydown_events(screen, event, game_settings, all_cubics, dead_cubics, 
             game_settings.key_right_timestamp = time.time()
 
         # 到底部或左右边界则停止
-        to_edge = check_edge(event.key, game_settings, all_cubics)
+        to_edge = check_edge(event.key, game_settings, fall_cubics)
 
         # 并且检测下一步是否会碰撞
         if not to_edge:
-            if not check_collision(game_settings, all_cubics, dead_cubics, temp_cubics, event.key):
-                all_cubics.cubics.update(game_settings, event.key)
+            if not check_collision(game_settings, fall_cubics, dead_cubics, temp_cubics, event.key):
+                fall_cubics.cubics.update(game_settings, event.key)
             else:
-                deal_collision(screen, game_settings, all_cubics, dead_cubics, event.key, black_lines, score_board)
+                deal_collision(screen, game_settings, fall_cubics, dead_cubics, event.key, black_lines, score_board)
 
     if event.key == pygame.K_SPACE:
-        all_cubics.rotate()
+        fall_cubics.rotate()
 
 
 def check_keyup_events(event, game_settings):
@@ -66,22 +70,29 @@ def check_keyup_events(event, game_settings):
         game_settings.key_right = False
 
 
-def check_events(screen, game_settings, all_cubics, dead_cubics, temp_cubics, black_lines, score_board):
+def check_events(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, score_board):
     """检测鼠标键盘事件"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_settings.exit_threads_flag = True
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(screen, event, game_settings, all_cubics, dead_cubics, temp_cubics, black_lines, \
+            check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, \
                                  score_board)
-        elif event.type == pygame.KEYUP:
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            ss.check_play_button(screen, game_settings, score_board, mouse_x, mouse_y)
+
+        # 如果是game_over状态就不用做后面的事了
+        if game_settings.game_over:
+            return
+        if event.type == pygame.KEYUP:
             check_keyup_events(event, game_settings)
 
 
-def check_edge(event_key, game_settings, all_cubics):
+def check_edge(event_key, game_settings, fall_cubics):
     """检测已到边界,底部边界为最底下一排以下,最底下一排属于碰撞检测的范围"""
-    for cubic in all_cubics.cubics.sprites():
+    for cubic in fall_cubics.cubics.sprites():
         if ((event_key == pygame.K_DOWN) or (event_key == 'down')) and (cubic.rect.y + game_settings.cubic_move_dist \
             > game_settings.screen_height):
             return True
@@ -94,16 +105,16 @@ def check_edge(event_key, game_settings, all_cubics):
             return False
 
 
-def check_collision(game_settings, all_cubics, dead_cubics, temp_cubics, event_key):
+def check_collision(game_settings, fall_cubics, dead_cubics, temp_cubics, event_key):
     """检测碰撞"""
     # 如果按向下键,判断是否落到最底下一排
     if (event_key == pygame.K_DOWN) or (event_key == 'down'):
-        for cubic in all_cubics.cubics.sprites():
+        for cubic in fall_cubics.cubics.sprites():
             if cubic.rect.y + game_settings.cubic_move_dist >= game_settings.screen_height:
                 return True
 
     # 复制正在下落的方块组
-    for cubic in all_cubics.cubics.sprites():
+    for cubic in fall_cubics.cubics.sprites():
         new_cubic = MetaCubic('images/cubic_lblue.bmp')
         new_cubic.rect.x = cubic.rect.x
         new_cubic.rect.y = cubic.rect.y
@@ -121,30 +132,35 @@ def check_collision(game_settings, all_cubics, dead_cubics, temp_cubics, event_k
         return False
 
 
-def deal_collision(screen, game_settings, all_cubics, dead_cubics, event_key, black_lines, score_board):
+def deal_collision(screen, game_settings, fall_cubics, dead_cubics, event_key, black_lines, score_board):
     """碰撞处理"""
     # 如果是横向碰撞,则不做更新即可
     if (event_key != pygame.K_LEFT) and (event_key != pygame.K_RIGHT):
         # 否则就是按了向下键,需要固定方块
-        # 从all_cubics取出所有元方块,改变颜色,并加入到dead_cubics组
-        for cubic in all_cubics.cubics.sprites():
-            cubic.image = pygame.image.load('images/cubic_lblue.bmp')
+        # 从fall_cubics取出所有元方块,改变颜色,并加入到dead_cubics组
+        for cubic in fall_cubics.cubics.sprites():
+            # game_over检测,如果最高的高度超过放下高度则进入dead处理,并退出函数
+            if cubic.rect.y == game_settings.cubic_start_height:
+                ss.game_over(screen, game_settings, fall_cubics, dead_cubics, black_lines, score_board)
+                return
+            cubic.image = pygame.image.load(game_settings.cubic_shape[game_settings.level % 7 + 1][0])
             dead_cubics.cubics.add(cubic)
-        # 清除all_cubics的所有元方块
-        all_cubics.cubics.empty()
+        # 清除fall_cubics的所有元方块
+        fall_cubics.cubics.empty()
 
         # 消除填满的行
-        clear_lines(screen, game_settings, all_cubics, dead_cubics, black_lines, score_board)
+        clear_lines(screen, game_settings, fall_cubics, dead_cubics, black_lines, score_board)
+
+        # 载入新方块组落下
+        fall_cubics.add_cubics()
 
         # 重置按键的保持按下状态
         game_settings.key_down = False
         game_settings.key_left = False
         game_settings.key_right = False
-        # 载入新方块组落下
-        all_cubics.add_cubics()
 
 
-def show_full_lines(screen, game_settings, all_cubics, dead_cubics, full_line_y, black_lines, score_board):
+def show_full_lines(screen, game_settings, fall_cubics, dead_cubics, full_line_y, black_lines, score_board):
     """动画显示被消除的行"""
     # 按消除的行数与y值建立黑行并加入黑行组
     for y in full_line_y:
@@ -154,17 +170,17 @@ def show_full_lines(screen, game_settings, all_cubics, dead_cubics, full_line_y,
 
     # 闪烁
     game_settings.black_line_refresh_flag = True
-    update_screen(screen, game_settings, all_cubics, dead_cubics, black_lines, score_board)
+    update_screen(screen, game_settings, fall_cubics, dead_cubics, black_lines, score_board)
     time.sleep(0.3)
     game_settings.black_line_refresh_flag = False
-    update_screen(screen, game_settings, all_cubics, dead_cubics, black_lines, score_board)
+    update_screen(screen, game_settings, fall_cubics, dead_cubics, black_lines, score_board)
     time.sleep(0.3)
 
     # 删除黑行组里的黑行
     black_lines.line.empty()
 
 
-def clear_lines(screen, game_settings, all_cubics, dead_cubics, black_lines, score_board):
+def clear_lines(screen, game_settings, fall_cubics, dead_cubics, black_lines, score_board):
     """消除填满的行"""
     # 扫描全屏,检测并记录已填满的行
     full_line_y = []
@@ -179,12 +195,11 @@ def clear_lines(screen, game_settings, all_cubics, dead_cubics, black_lines, sco
             if cubic_count_x == game_settings.screen_width / game_settings.metacubic_width:
                 full_line_y.append(y)
 
-    # 动画显示已填满的行
     if len(full_line_y) > 0:
-        show_full_lines(screen, game_settings, all_cubics, dead_cubics, full_line_y, black_lines, score_board)
+        # 动画显示已填满的行
+        show_full_lines(screen, game_settings, fall_cubics, dead_cubics, full_line_y, black_lines, score_board)
 
-    # 消除已填满的行
-    if len(full_line_y) > 0:
+        # 消除已填满的行
         for y in full_line_y:
             for cubic in dead_cubics.cubics.copy():
                 if cubic.rect.y == y:
@@ -196,19 +211,47 @@ def clear_lines(screen, game_settings, all_cubics, dead_cubics, black_lines, sco
                 if cubic.rect.y < y:
                     cubic.rect.y += game_settings.metacubic_width
 
+        #更新记分与升级处理
+        update_score_and_levelup(game_settings, dead_cubics, score_board, len(full_line_y))
 
-def key_down_update_cubics(screen, event_key, game_settings, all_cubics, dead_cubics, temp_cubics, thread_lock, \
+def update_score_and_levelup(game_settings, dead_cubics, score_board, clear_lines):
+    """处理消行后的记分更新与升级"""
+    # 记分记行并更新最高分
+    game_settings.score += game_settings.earn_score[clear_lines]
+    game_settings.lines += clear_lines
+    if game_settings.score > game_settings.hiscore:
+        game_settings.hiscore = game_settings.score
+
+    # 按目前行数判断与处理升级
+    if game_settings.lines >= game_settings.level * game_settings.levelup_lines:
+        game_settings.level += 1
+        # 刷新dead_cubics的颜色
+        for cubic in dead_cubics.cubics.sprites():
+            cubic.image = pygame.image.load(game_settings.cubic_shape[game_settings.level % 7 + 1][0])
+        # 显示升级图像
+        score_board.prep_levelup()
+        game_settings.level_up = True
+        time.sleep(2)
+        game_settings.level_up = False
+        # 游戏加速
+        game_settings.increase_speed()
+
+    # 重新把记分板的数值转换为图像
+    score_board.prep_text()
+
+
+def key_down_update_cubics(screen, event_key, game_settings, fall_cubics, dead_cubics, temp_cubics, thread_lock, \
                            black_lines, score_board):
     """按键持续按下时连续更新方块组"""
     # 到边界则停止,并做碰撞检测与处理
-    to_edge = check_edge(event_key, game_settings, all_cubics)
+    to_edge = check_edge(event_key, game_settings, fall_cubics)
     if not to_edge:
-        if not check_collision(game_settings, all_cubics, dead_cubics, temp_cubics, event_key):
+        if not check_collision(game_settings, fall_cubics, dead_cubics, temp_cubics, event_key):
             thread_lock.acquire()
-            all_cubics.cubics.update(game_settings, event_key)
+            fall_cubics.cubics.update(game_settings, event_key)
             thread_lock.release()
         else:
             thread_lock.acquire()
-            deal_collision(screen, game_settings, all_cubics, dead_cubics, event_key, black_lines, \
+            deal_collision(screen, game_settings, fall_cubics, dead_cubics, event_key, black_lines, \
                            score_board)
             thread_lock.release()

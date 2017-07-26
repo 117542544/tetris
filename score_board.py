@@ -13,14 +13,14 @@ class ScoreBoard():
         self.rect_color = (128, 128, 128)
         self.text_font = pygame.font.SysFont(None, 22)
         self.number_font = pygame.font.SysFont(None, 30)
+        self.playbutton_font = pygame.font.SysFont(None, 45)
         self.rect_line_thickness = 4
 
         # 准备得分板图像
         self.prep_rect()
         self.prep_text()
-        #self.prep_lines()
-        #self.prep_level()
-
+        self.prep_gameover()
+        self.prep_playbutton()
 
     def create_text(self, text, text_left_x, text_right_x, text_bottom_y):
         """把文本或数字绘制为图像"""
@@ -101,7 +101,39 @@ class ScoreBoard():
         self.num_lines_image, self.num_lines_rect = self.create_text(self.game_settings.lines, False, \
                                                                          self.screen_rect.centerx + 115, 65)
 
+    def prep_levelup(self):
+        """绘制升级图像"""
+        # 绘制矩形框
+        self.levelup_rect = self.create_rect(150, 50, 125, 150)
+        # 绘制文字
+        self.text_levelup_image, self.text_levelup_rect = self.create_text('LEVEL  ' + str(self.game_settings.level), \
+                                                                           170, False, 135)
+
+    def prep_gameover(self):
+        """绘制gameover图像"""
+        # 绘制矩形框
+        self.gameover_outside_rect = self.create_rect(180, 80, 110, 185)
+        self.gameover_inside_rect = self.create_rect(150, 50, 125, 170)
+        # 绘制文字
+        self.text_gameover_image, self.text_gameover_rect = self.create_text('Game Over !!!',150, False, 155)
+
+    def prep_playbutton(self):
+        """绘制play图像"""
+        # 绘制矩形框
+        self.playbutton_rect = self.create_rect(150, 50, 125, 300)
+        # 绘制play文字
+        self.text_playbutton_image = self.playbutton_font.render('PLAY', True, (0, 0, 0), (123, 179, 255))
+        self.text_playbutton_rect = self.text_playbutton_image.get_rect()
+        self.text_playbutton_rect.centerx = self.playbutton_rect.centerx
+        self.text_playbutton_rect.centery = self.playbutton_rect.centery
+        # 绘制提示退出的文字
+        self.text_playhint_image = self.text_font.render('Press "Q" to quit.', True, (0, 74, 174), (0, 0, 0))
+        self.text_playhint_rect = self.text_playhint_image.get_rect()
+        self.text_playhint_rect.centerx = self.screen_rect.centerx
+        self.text_playhint_rect.bottom = self.screen_rect.bottom - 25
+
     def show_all(self):
+        # 显示表格框架
         pygame.draw.rect(self.screen, self.rect_color, self.horizontal_rect_1)
         pygame.draw.rect(self.screen, self.rect_color, self.horizontal_rect_2)
         pygame.draw.rect(self.screen, self.rect_color, self.vertical_rect_1)
@@ -111,11 +143,27 @@ class ScoreBoard():
         pygame.draw.rect(self.screen, self.rect_color, self.vertical_up_short_rect_2)
         pygame.draw.rect(self.screen, self.rect_color, self.vertical_down_short_rect_1)
         pygame.draw.rect(self.screen, self.rect_color, self.vertical_down_short_rect_2)
+        # 显示文字
         self.screen.blit(self.text_score_image, self.text_score_rect)
         self.screen.blit(self.text_hiscore_image, self.text_hiscore_rect)
         self.screen.blit(self.text_lines_image, self.text_lines_rect)
         self.screen.blit(self.text_level_image, self.text_level_rect)
+        # 显示数字
         self.screen.blit(self.num_score_image, self.num_score_rect)
         self.screen.blit(self.num_hiscore_image, self.num_hiscore_rect)
         self.screen.blit(self.num_level_image, self.num_level_rect)
         self.screen.blit(self.num_lines_image, self.num_lines_rect)
+        # 显示level_up提示框与文字
+        if self.game_settings.level_up:
+            pygame.draw.rect(self.screen, (0, 200, 0), self.levelup_rect, 3)
+            self.screen.blit(self.text_levelup_image, self.text_levelup_rect)
+        # 显示game_over提示框与文字
+        if self.game_settings.game_over and not self.game_settings.game_wait:
+            pygame.draw.rect(self.screen, (255, 0, 0), self.gameover_outside_rect, 4)
+            pygame.draw.rect(self.screen, (255, 0, 0), self.gameover_inside_rect, 4)
+            self.screen.blit(self.text_gameover_image, self.text_gameover_rect)
+        # 显示play按钮
+        if self.game_settings.game_over and self.game_settings.game_wait:
+            pygame.draw.rect(self.screen, (123, 179, 255), self.playbutton_rect)
+            self.screen.blit(self.text_playbutton_image, self.text_playbutton_rect)
+            self.screen.blit(self.text_playhint_image, self.text_playhint_rect)

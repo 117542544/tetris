@@ -3,10 +3,10 @@ import threading
 from pygame.sprite import Group
 
 from settings import Settings
-from my_class import AllCubic, DeadCubic, BlackLines
-from my_threads import ThreadCubicFall, ThreadCheckKeyDown
+from my_class import FallCubic, DeadCubic, BlackLines
 from score_board import ScoreBoard
 import game_functions as gf
+import start_stop_func as ss
 
 
 def run_game():
@@ -24,39 +24,38 @@ def run_game():
     fps_clock = pygame.time.Clock()
 
     # 创建新落下的方块
-    newcubics = AllCubic(screen, game_settings)
-    newcubics.add_cubics()
+    fall_cubics = FallCubic(screen, game_settings)
 
     # 创建检测碰撞用的临时方块实例组
-    tempcubics = Group()
+    temp_cubics = Group()
 
     # 创建被固定的dead方块
-    deadcubics = DeadCubic(screen, game_settings)
+    dead_cubics = DeadCubic(screen, game_settings)
 
     # 创建消除时显示的黑行组
-    blacklines = BlackLines()
+    black_lines = BlackLines()
 
     # 创建得分板
-    scoreboard = ScoreBoard(screen, game_settings)
+    score_board = ScoreBoard(screen, game_settings)
 
     # 创建多线程
     thread_lock = threading.Lock()
-    # 创建方块自由下落线程
-    thread_cubic_fall = ThreadCubicFall(screen,game_settings, newcubics, deadcubics, tempcubics, thread_lock, \
-                                        blacklines, scoreboard)
-    thread_cubic_fall.start()
-    # 创建连续按键检测线程
-    thread_key_down = ThreadCheckKeyDown(screen,game_settings, newcubics, deadcubics, tempcubics, thread_lock, \
-                                         blacklines, scoreboard)
-    thread_key_down.start()
+
+    # 初始化游戏
+    game_settings.game_over = True
+    game_settings.game_wait = True
+    ss.game_start(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, thread_lock, black_lines, score_board)
 
     while True:
         # 限制运行速度
         fps_clock.tick(game_settings.FPS)
+        # game_over后重启程序
+        ss.game_start(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, thread_lock, black_lines, \
+                          score_board)
         # 事件检测
-        gf.check_events(screen, game_settings, newcubics, deadcubics, tempcubics, blacklines, scoreboard)
+        gf.check_events(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, score_board)
         # 更新所有屏幕元素
-        gf.update_screen(screen, game_settings, newcubics, deadcubics, blacklines, scoreboard)
+        gf.update_screen(screen, game_settings, fall_cubics, dead_cubics, black_lines, score_board)
 
 # 开始游戏主进程
 run_game()

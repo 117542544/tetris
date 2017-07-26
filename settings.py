@@ -214,7 +214,7 @@ class Settings():
         # 最高分
         self.hiscore = 0
         # 每升一级需要消除的行数
-        self.levelup_lines = 30
+        self.levelup_lines = 3
 
         # 初始化动态参数
         self.init_dynamic_setting()
@@ -240,9 +240,15 @@ class Settings():
 
         # 记录游戏得分,最高分，关卡级别,消行总数
         self.score = 0
-        self.level = 0
+        self.level = 1
         self.lines = 0
 
+        # 游戏重置后且处于进入play前的标志
+        self.game_wait = False
+        # game_over标志
+        self.game_over = False
+        # level_up标志
+        self.level_up = False
 
     def increase_speed(self):
         """下落加速"""

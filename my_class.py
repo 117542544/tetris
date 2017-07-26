@@ -4,7 +4,7 @@ from pygame.sprite import Sprite
 from random import randint
 
 
-class AllCubic():
+class FallCubic():
     """所有方块组的类"""
     def __init__(self, screen, game_settings):
         """创建方块组"""

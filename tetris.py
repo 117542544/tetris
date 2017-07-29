@@ -54,7 +54,8 @@ def run_game():
         ss.game_start(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, thread_lock, black_lines, \
                           score_board)
         # 事件检测
-        gf.check_events(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, score_board)
+        gf.check_events(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, score_board, \
+                        thread_lock)
         # 更新所有屏幕元素
         gf.update_screen(screen, game_settings, fall_cubics, dead_cubics, black_lines, score_board)
 

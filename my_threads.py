@@ -22,6 +22,10 @@ class ThreadCubicFall(threading.Thread):
 
     def run(self):
         while not self.game_settings.exit_threads_flag:
+            # 如果目前是暂停状态就什么都不做
+            if self.game_settings.game_pause:
+                continue
+
             # 方块下落的速度
             sleep(self.game_settings.fall_interval)
 
@@ -47,6 +51,10 @@ class ThreadCheckKeyDown(threading.Thread):
         while not self.game_settings.exit_threads_flag:
             # 限制检测间隔
             sleep(0.05)
+
+            # 如果目前是暂停状态就什么都不做
+            if self.game_settings.game_pause:
+                continue
 
             # 检测时间间隔如果大于0.5秒,则连续更新位置
             while (self.game_settings.key_down) and (time.time() - self.game_settings.key_down_timestamp > 0.5):

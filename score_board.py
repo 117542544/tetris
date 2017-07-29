@@ -21,6 +21,7 @@ class ScoreBoard():
         self.prep_text()
         self.prep_gameover()
         self.prep_playbutton()
+        self.prep_pause()
 
     def create_text(self, text, text_left_x, text_right_x, text_bottom_y):
         """把文本或数字绘制为图像"""
@@ -127,10 +128,17 @@ class ScoreBoard():
         self.text_playbutton_rect.centerx = self.playbutton_rect.centerx
         self.text_playbutton_rect.centery = self.playbutton_rect.centery
         # 绘制提示退出的文字
-        self.text_playhint_image = self.text_font.render('Press "Q" to quit.', True, (0, 74, 174), (0, 0, 0))
+        self.text_playhint_image = self.text_font.render('Press "Q" to quit, "P" to pause.', True, (0, 74, 174), (0, 0, 0))
         self.text_playhint_rect = self.text_playhint_image.get_rect()
         self.text_playhint_rect.centerx = self.screen_rect.centerx
         self.text_playhint_rect.bottom = self.screen_rect.bottom - 25
+
+    def prep_pause(self):
+        """绘制暂停图像"""
+        # 绘制矩形框
+        self.pause_rect = self.create_rect(150, 50, 125, 150)
+        # 绘制文字
+        self.text_pause_image, self.text_pause_rect = self.create_text('PAUSE', 175, False, 135)
 
     def show_all(self):
         # 显示表格框架
@@ -167,3 +175,7 @@ class ScoreBoard():
             pygame.draw.rect(self.screen, (123, 179, 255), self.playbutton_rect)
             self.screen.blit(self.text_playbutton_image, self.text_playbutton_rect)
             self.screen.blit(self.text_playhint_image, self.text_playhint_rect)
+        # 显示pause提示框与文字
+        if self.game_settings.game_pause:
+            pygame.draw.rect(self.screen, (255, 255, 0), self.pause_rect, 3)
+            self.screen.blit(self.text_pause_image, self.text_pause_rect)

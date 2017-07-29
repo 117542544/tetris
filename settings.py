@@ -249,6 +249,8 @@ class Settings():
         self.game_over = False
         # level_up标志
         self.level_up = False
+        # 暂停游戏标志
+        self.game_pause = False
 
     def increase_speed(self):
         """下落加速"""

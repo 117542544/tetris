@@ -113,13 +113,10 @@ class MetaCubic(Sprite):
     def update(self, game_settings, event_key):
         """处理方块自然下降与按键移动"""
         if event_key == pygame.K_DOWN:
-            game_settings.key_down = True
             self.rect.y += game_settings.cubic_move_dist
         if event_key == pygame.K_LEFT:
-            game_settings.key_left = True
             self.rect.x -= game_settings.cubic_move_dist
         if event_key == pygame.K_RIGHT:
-            game_settings.key_right = True
             self.rect.x += game_settings.cubic_move_dist
         if event_key == 'up':
             self.rect.y -= game_settings.cubic_move_dist

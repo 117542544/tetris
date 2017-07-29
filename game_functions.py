@@ -24,7 +24,8 @@ def update_screen(screen, game_settings, fall_cubics, dead_cubics, black_lines, 
     pygame.display.flip()
 
 
-def check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, score_board):
+def check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, \
+                         score_board, thread_lock):
     """处理按键事件"""
     if event.key == pygame.K_q:
         game_settings.exit_threads_flag = True
@@ -32,6 +33,15 @@ def check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics,
 
     # 如果是game_over状态就不用检测其他按键了
     if game_settings.game_over:
+        return
+
+    # 如果游戏处于运行中,只要有P键就反转暂停状态
+    if not game_settings.game_over and not game_settings.game_wait:
+        if event.key == pygame.K_p:
+            game_settings.game_pause = not(game_settings.game_pause)
+
+    # 如果目前是暂停状态就什么都不做
+    if game_settings.game_pause:
         return
 
     if (event.key == pygame.K_DOWN) or (event.key == pygame.K_LEFT) or (event.key == pygame.K_RIGHT):
@@ -46,15 +56,9 @@ def check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics,
             game_settings.key_right = True
             game_settings.key_right_timestamp = time.time()
 
-        # 到底部或左右边界则停止
-        to_edge = check_edge(event.key, game_settings, fall_cubics)
-
-        # 并且检测下一步是否会碰撞
-        if not to_edge:
-            if not check_collision(game_settings, fall_cubics, dead_cubics, temp_cubics, event.key):
-                fall_cubics.cubics.update(game_settings, event.key)
-            else:
-                deal_collision(screen, game_settings, fall_cubics, dead_cubics, event.key, black_lines, score_board)
+        # 获取按键方向后更新方块组
+        key_down_update_cubics(screen, event.key, game_settings, fall_cubics, dead_cubics, temp_cubics, thread_lock, \
+                               black_lines, score_board)
 
     if event.key == pygame.K_SPACE:
         fall_cubics.rotate()
@@ -70,7 +74,7 @@ def check_keyup_events(event, game_settings):
         game_settings.key_right = False
 
 
-def check_events(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, score_board):
+def check_events(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, score_board, thread_lock):
     """检测鼠标键盘事件"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -78,7 +82,7 @@ def check_events(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, b
             sys.exit()
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics, temp_cubics, black_lines, \
-                                 score_board)
+                                 score_board, thread_lock)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             ss.check_play_button(screen, game_settings, score_board, mouse_x, mouse_y)
@@ -242,16 +246,14 @@ def update_score_and_levelup(game_settings, dead_cubics, score_board, clear_line
 
 def key_down_update_cubics(screen, event_key, game_settings, fall_cubics, dead_cubics, temp_cubics, thread_lock, \
                            black_lines, score_board):
-    """按键持续按下时连续更新方块组"""
+    """获取按键方向后更新方块组"""
+    thread_lock.acquire()
     # 到边界则停止,并做碰撞检测与处理
     to_edge = check_edge(event_key, game_settings, fall_cubics)
     if not to_edge:
         if not check_collision(game_settings, fall_cubics, dead_cubics, temp_cubics, event_key):
-            thread_lock.acquire()
             fall_cubics.cubics.update(game_settings, event_key)
-            thread_lock.release()
         else:
-            thread_lock.acquire()
             deal_collision(screen, game_settings, fall_cubics, dead_cubics, event_key, black_lines, \
                            score_board)
-            thread_lock.release()
+    thread_lock.release()

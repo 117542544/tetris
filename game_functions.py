@@ -61,7 +61,13 @@ def check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics,
                                black_lines, score_board)
 
     if event.key == pygame.K_SPACE:
-        fall_cubics.rotate()
+        thread_lock.acquire()
+        fall_cubics.rotate(temp_cubics, dead_cubics)
+        # 重置按键的保持按下状态
+        game_settings.key_down = False
+        game_settings.key_left = False
+        game_settings.key_right = False
+        thread_lock.release()
 
 
 def check_keyup_events(event, game_settings):
@@ -128,8 +134,7 @@ def check_collision(game_settings, fall_cubics, dead_cubics, temp_cubics, event_
     # 判断是否碰撞
     collisions =  pygame.sprite.groupcollide(temp_cubics, dead_cubics.cubics, False, False)
     # 清空临时组
-    for cubic in temp_cubics.copy():
-        temp_cubics.remove(cubic)
+    temp_cubics.empty()
     if collisions:
         return True
     else:

@@ -225,7 +225,7 @@ class Settings():
         self.exit_threads_flag = False
 
         # 方块下落的时间间隔
-        self.fall_interval = 1.0
+        self.fall_interval = 0.8
 
         # 按键标志
         self.key_down = False

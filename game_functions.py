@@ -35,10 +35,13 @@ def check_keydown_events(screen, event, game_settings, fall_cubics, dead_cubics,
     if game_settings.game_over:
         return
 
-    # 如果游戏处于运行中,只要有P键就反转暂停状态
+    # 如果游戏处于运行中,只要有P键就反转暂停状态,同时复位键盘的按下状态
     if not game_settings.game_over and not game_settings.game_wait:
         if event.key == pygame.K_p:
             game_settings.game_pause = not(game_settings.game_pause)
+            game_settings.key_down = False
+            game_settings.key_left = False
+            game_settings.key_right = False
 
     # 如果目前是暂停状态就什么都不做
     if game_settings.game_pause:
@@ -95,6 +98,7 @@ def check_events(screen, game_settings, fall_cubics, dead_cubics, temp_cubics, b
 
         # 如果是game_over状态就不用做后面的事了
         if game_settings.game_over:
+            time.sleep(0.5)
             return
         if event.type == pygame.KEYUP:
             check_keyup_events(event, game_settings)
